@@ -1,6 +1,6 @@
 import { IMT, IMTNode, IMTMerkleProof } from "@zk-kit/imt"
 import { poseidon2 } from "poseidon-lite"
-import { Account, ProgramManager, initThreadPool } from '@provablehq/sdk';
+import { Account } from '@provablehq/sdk';
 import { RecordCiphertext, RecordPlaintext } from "@provablehq/sdk";
 import { generateGroupId } from "./utils";
 import { RlnProgram } from "./program";
@@ -10,10 +10,14 @@ const zeroValue = 0
 const arity = 2
 export const ALEO_BASE_FIELD: bigint = BigInt("8444461749428370424248824938781546531375899335154063827935233455917409239040");
 
+/**
+ * **`RLNBoard`** manages the off-chain state for a decentralized message board
+ * using the RLN protocol.
+ */
 export class RLNBoard {
   public readonly id: string
   public tree: IMT
-
+  public size: number
   public messages: Map<string, string>
 
   public program: RlnProgram
@@ -28,6 +32,7 @@ export class RLNBoard {
   constructor(account: Account) {
     this.id = generateGroupId();
     this.tree = new IMT(poseidon2, depth, zeroValue, arity);
+    this.size = 0;
     this.program = new RlnProgram(account);
     this.tokenRecords = new Map();
     this.messageTimeLockRecords = new Map();
@@ -50,7 +55,7 @@ export class RLNBoard {
    * @param index - Index of the leaf to remove
    */
   remove(index: number): void {
-    let zero = BigInt(0);
+    const zero = BigInt(0);
     this.tree.update(index, zero);
   }
 
@@ -60,17 +65,23 @@ export class RLNBoard {
    * @param account the member account
    * @param secret secret key of the member
    */
-  public async addMember(account: Account, secret: BigInt): Promise<void> {
-    let tokenRecord = this.tokenRecords[account.toString()];
-    
-    let output = await this.program.register(this.id, secret.toString(), tokenRecord);
+  public async addMember(account: Account, secret: bigint): Promise<void> {
+    const tokenRecord = this.tokenRecords[account.toString()]; 
+    const index = this.size;
+    const identityCommitment = poseidon2([secret]);
+    const oldRoot = this.tree.root;
+    const _proof = this.tree.createProof(index);
+    const newRoot = this.tree.root;
+    const output = await this.program.register(this.id, secret.toString(), tokenRecord, oldRoot.toString(), newRoot.toString());
+
+    this.size += 1
   }
 
   public async postMessage(account: Account, secret: bigint, message: string): Promise<void> {
-    let identityCommitment = poseidon2([secret]);
-    let index = this.tree.indexOf(identityCommitment);
-    let proof = this.tree.createProof(index)
-    let messageCounterRecord = this.userMessageCountRecords[account.toString()];
+    const identityCommitment = poseidon2([secret]);
+    const index = this.tree.indexOf(identityCommitment);
+    const proof = this.tree.createProof(index)
+    const messageCounterRecord = this.userMessageCountRecords[account.toString()];
     // let output = await this.program.postMessage(this.id, account._address, secret.toString(), index, message,  messageCounterRecord, "", "");
   }
 }

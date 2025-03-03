@@ -1,6 +1,14 @@
 {
-    "program": "rln_boardv01.aleo",
-    "version": "0.0.0",
-    "description": "",
-    "license": "MIT"
+  "program": "rln_boardv01.aleo",
+  "version": "0.0.0",
+  "description": "",
+  "license": "MIT",
+  "dependencies": [
+    {
+      "name": "token_registry.aleo",
+      "location": "network",
+      "network": "testnet",
+      "path": null
+    }
+  ]
 }
