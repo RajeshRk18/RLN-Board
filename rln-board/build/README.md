@@ -1,4 +1,4 @@
-# rln.aleo
+# rln_boardv01.aleo
 
 ## Build Guide
 

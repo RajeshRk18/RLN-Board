@@ -1,90 +1,92 @@
-# React + Aleo + Leo
+## Overview
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/fork/github/AleoHQ/sdk/tree/testnet3/create-aleo-app/template-react-leo)
+A decentralized message board with spam prevention mechanism using the Rate Limiting Nullifier (RLN) protocol. Users join the board by staking funds, ensuring commitment and deterring spam. If a member exceeds the message limit, anyone from the board can derive the secret and slash their stake, keeping the board clean and incentivizing responsible participation.
 
-This template provides a minimal setup to get React and Aleo working in Vite
-with HMR and some ESLint rules.
+## Usage
 
-This template includes a Leo program that is loaded by the web app located in
-the `helloworld` directory.
+### create a board
 
-Note: Webpack is currently used for production builds due to a
-[bug](https://github.com/vitejs/vite/issues/13367) with Vite related to nested
-workers.
+```typescript
+import { Account } from '@provablehq/sdk';
+import { RLNBoard } from './RLNBoard';
 
-### Start in development mode
-
-```bash
-npm run dev
+const creator = new Account({ privateKey: "YOUR_PRIVATE_KEY" });
+const board = new RLNBoard(creator);
+console.log(`Board created with ID: ${board.id}`);
 ```
 
-Your app should be running on http://localhost:5173/
+### join board
 
-### Build Leo program
+```typescript
+import { Account } from '@provablehq/sdk';
 
-1. Copy the `helloworld/.env.example` to `helloworld/.env` (this will be ignored
-   by Git):
+// Create a member account and a secret (as BigInt)
+const member = new Account({ privateKey: "MEMBER_PRIVATE_KEY" });
+const memberSecret = BigInt("123456789"); // Example secret
 
-   ```bash
-   cd helloworld
-   cp .env.example .env
-   ```
-
-2. Replace `PRIVATE_KEY=user1PrivateKey` in the `.env` with your own key (you
-   can use an existing one or generate your own at https://aleo.tools/account)
-
-3. Follow instructions to install Leo here: https://github.com/AleoHQ/leo
-
-4. You can edit `helloworld/src/main.leo` and run `leo run` to compile and update the
-   Aleo instructions under `build` which are loaded by the web app.
-
-## Deploy program from web app
-
-> [!WARNING]  
-> This is for demonstration purposes or local testing only, in production applications you
-> should avoid building a public facing web app with private key information
-
-Information on generating a private key, seeding a wallet with funds, and finding a spendable record can be found here
-if you are unfamiliar: https://developer.aleo.org/testnet/getting_started/deploy_execute_demo
-
-Aleo programs deployed require unique names, make sure to edit the program's name to something unique in `helloworld/src/main.leo`, `helloworld/program.json`, rename `helloworld/inputs/helloworld.in` and rebuild.
-
-1. In the `worker.js` file modify the privateKey to be an account with available
-   funds
-
-   ```js
-   // Use existing account with funds
-   const account = new Account({
-     privateKey: "user1PrivateKey",
-   });
-   ```
-
-2. (Optional) Provide a fee record manually (located in commented code within `worker.js`)
-
-   If you do not provide a manual fee record, the SDK will attempt to scan for a record starting at the latest block. A simple way to speed this up would be to make a public transaction to this account right before deploying.
-   
-3. Run the web app and hit the deploy button
-
-## Production deployment
-
-### Build
-
-`npm run build`
-
-Upload `dist` folder to your host of choice.
-
-### ⚠️ Header warnings
-
-`DOMException: Failed to execute 'postMessage' on 'Worker': SharedArrayBuffer transfer requires self.crossOriginIsolated`
-
-If you get a warning similar to this when deploying your application, you need
-to make sure your web server is configured with the following headers:
+// Add the member to the board (this will call the RLN register transition)
+await board.addMember(member, memberSecret);
+console.log(`Member ${member.toString()} joined board ${board.id}`);
 
 ```
-Cross-Origin-Opener-Policy: same-origin
-Cross-Origin-Embedder-Policy: require-corp
+
+### post a message
+
+```typescript
+// Post a message from a board member.
+const message = "Hello, RLN Board!";
+await board.postMessage(member, memberSecret, message);
+
 ```
 
-We've included a `_headers` file that works with some web hosts (e.g. Netlify)
-but depending on your host / server setup you may need to configure the headers
-manually.
+### leave the board
+
+```typescript
+import { poseidon2 } from "poseidon-lite";
+
+// To leave, remove the member's identity commitment from the board’s Merkle tree.
+// Compute the member's identity commitment.
+const identityCommitment = poseidon2([memberSecret]);
+
+// Find the index of the commitment in the tree.
+const memberIndex = board.tree.indexOf(identityCommitment);
+if (memberIndex !== -1) {
+  board.remove(memberIndex);
+  console.log(`Member ${member.toString()} left board ${board.id}`);
+} else {
+  console.error("Member not found in the board.");
+}
+```
+
+### slash stake
+
+```typescript
+
+// If a member exceeds the allowed message limit, anyone (e.g., the board creator) can slash their stake.
+// This example calls the RLN program's slash transition directly.
+const slasherSecret = BigInt("987654321");
+const slasheeIdentityCommitment = "0xSLASHEE_COMMITMENT"; // Offending member's commitment
+const xShare0 = "0x1"; 
+const xShare1 = "0x2";
+const yShare0 = "0x3";
+const yShare1 = "0x4";
+const nullifierId = 1;
+
+// a sample token record
+const token = "{ owner: slasher.private, amount: 100u64.private }";
+
+await board.slash(
+  board.id,
+  slasher.toString(),
+  slasherSecret.toString(),
+  slasheeIdentityCommitment,
+  xShare0,
+  xShare1,
+  yShare0,
+  yShare1,
+  nullifierId,
+  token
+);
+console.log(`Stake slashed for member with commitment ${slasheeIdentityCommitment}`);
+
+```
