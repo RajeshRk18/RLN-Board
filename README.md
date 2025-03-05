@@ -2,17 +2,6 @@
 
 A decentralized message board with spam prevention mechanism using the Rate Limiting Nullifier (RLN) protocol. Users join the board by staking funds, ensuring commitment and deterring spam. If a member exceeds the message limit, anyone from the board can derive the secret and slash their stake, keeping the board clean and incentivizing responsible participation.
 
-## Deployment
-
-The program has been deployed on testnet currently.
-
-```
-Deployment ID:
-
-Program ID:
-
-Transaction ID: 
-```
 ## Usage
 
 ### create a board
