@@ -1,6 +1,6 @@
 // A demo function to see how the transaction is peformed with Aleo SDK
 
-import { Account, ProgramManager, AleoKeyProvider, NetworkRecordProvider, AleoNetworkClient, TransactionObject } from '@provablehq/sdk';
+import { Account, ProgramManager, AleoKeyProvider, NetworkRecordProvider, AleoNetworkClient, Transaction } from '@provablehq/sdk';
 
 async function executeTransition() {
     const account = new Account();
@@ -37,7 +37,7 @@ async function executeTransition() {
         console.log("Transaction submitted. Waiting for confirmation...");
 
 
-        let transactionObj: TransactionObject;
+        let transactionObj: Transaction;
         let transactionFound = false;
 
         // Polling loop to check transaction status
