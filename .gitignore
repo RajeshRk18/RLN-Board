@@ -27,3 +27,6 @@ dist-ssr
 
 # production
 /build
+
+/rln-message-board
+/my-rln-demo
