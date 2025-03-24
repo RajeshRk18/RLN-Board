@@ -1,0 +1,61 @@
+.board-container {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 20px;
+  font-family: system-ui;
+}
+
+.account-switcher button {
+  margin-right: 10px;
+  padding: 8px 16px;
+  cursor: pointer;
+}
+
+.message-input {
+  margin: 20px 0;
+  display: flex;
+  gap: 10px;
+}
+
+.message-input input {
+  flex-grow: 1;
+  padding: 8px;
+}
+
+.notifications {
+  margin: 20px 0;
+  border-top: 1px solid #ccc;
+  padding-top: 10px;
+}
+
+.notification {
+  padding: 10px;
+  margin: 5px 0;
+  background: #fff3cd;
+  border-radius: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.slash-button {
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.message-list {
+  margin-top: 20px;
+  border-top: 1px solid #eee;
+  padding-top: 10px;
+}
+
+.message {
+  padding: 8px;
+  margin: 5px 0;
+  background: #f8f9fa;
+  border-radius: 4px;
+}

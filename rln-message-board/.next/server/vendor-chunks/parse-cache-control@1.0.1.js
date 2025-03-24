@@ -1,0 +1,24 @@
+/*
+ * ATTENTION: An "eval-source-map" devtool has been used.
+ * This devtool is neither made for production nor for readable output files.
+ * It uses "eval()" calls to create a separate source file with attached SourceMaps in the browser devtools.
+ * If you are trying to read the output file, select a different devtool (https://webpack.js.org/configuration/devtool/)
+ * or disable the default devtool with "devtool: false".
+ * If you are looking for production-ready output files, see mode: "production" (https://webpack.js.org/configuration/mode/).
+ */
+exports.id = "vendor-chunks/parse-cache-control@1.0.1";
+exports.ids = ["vendor-chunks/parse-cache-control@1.0.1"];
+exports.modules = {
+
+/***/ "(ssr)/./node_modules/.pnpm/parse-cache-control@1.0.1/node_modules/parse-cache-control/index.js":
+/*!************************************************************************************************!*\
+  !*** ./node_modules/.pnpm/parse-cache-control@1.0.1/node_modules/parse-cache-control/index.js ***!
+  \************************************************************************************************/
+/***/ ((module) => {
+
+eval("module.exports = function parseCacheControl(field) {\n\n  if (typeof field !== 'string') {\n    return null;\n  }\n\n  /*\n    Cache-Control   = 1#cache-directive\n    cache-directive = token [ \"=\" ( token / quoted-string ) ]\n    token           = [^\\x00-\\x20\\(\\)<>@\\,;\\:\\\\\"\\/\\[\\]\\?\\=\\{\\}\\x7F]+\n    quoted-string   = \"(?:[^\"\\\\]|\\\\.)*\"\n  */\n\n  //                             1: directive                                        =   2: token                                              3: quoted-string\n  var regex = /(?:^|(?:\\s*\\,\\s*))([^\\x00-\\x20\\(\\)<>@\\,;\\:\\\\\"\\/\\[\\]\\?\\=\\{\\}\\x7F]+)(?:\\=(?:([^\\x00-\\x20\\(\\)<>@\\,;\\:\\\\\"\\/\\[\\]\\?\\=\\{\\}\\x7F]+)|(?:\\\"((?:[^\"\\\\]|\\\\.)*)\\\")))?/g;\n\n  var header = {};\n  var err = field.replace(regex, function($0, $1, $2, $3) {\n    var value = $2 || $3;\n    header[$1] = value ? value.toLowerCase() : true;\n    return '';\n  });\n\n  if (header['max-age']) {\n    try {\n      var maxAge = parseInt(header['max-age'], 10);\n      if (isNaN(maxAge)) {\n        return null;\n      }\n\n      header['max-age'] = maxAge;\n    }\n    catch (err) { }\n  }\n\n  return (err ? null : header);\n};\n//# sourceURL=[module]\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiKHNzcikvLi9ub2RlX21vZHVsZXMvLnBucG0vcGFyc2UtY2FjaGUtY29udHJvbEAxLjAuMS9ub2RlX21vZHVsZXMvcGFyc2UtY2FjaGUtY29udHJvbC9pbmRleC5qcyIsIm1hcHBpbmdzIjoiQUFBQTs7QUFFQTtBQUNBO0FBQ0E7O0FBRUE7QUFDQTtBQUNBO0FBQ0EsMkNBQTJDLGlCQUFpQixFQUFFO0FBQzlEO0FBQ0E7O0FBRUE7QUFDQSx1REFBdUQsaUJBQWlCLEVBQUUscUNBQXFDLGlCQUFpQixFQUFFOztBQUVsSTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0EsR0FBRzs7QUFFSDtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7O0FBRUE7QUFDQTtBQUNBO0FBQ0E7O0FBRUE7QUFDQSIsInNvdXJjZXMiOlsiL2hvbWUvdXNlcm5hbWUvYWxlby9yYXRlLWxpbWl0aW5nLW51bGxpZmllci9ybG4tbWVzc2FnZS1ib2FyZC9ub2RlX21vZHVsZXMvLnBucG0vcGFyc2UtY2FjaGUtY29udHJvbEAxLjAuMS9ub2RlX21vZHVsZXMvcGFyc2UtY2FjaGUtY29udHJvbC9pbmRleC5qcyJdLCJzb3VyY2VzQ29udGVudCI6WyJtb2R1bGUuZXhwb3J0cyA9IGZ1bmN0aW9uIHBhcnNlQ2FjaGVDb250cm9sKGZpZWxkKSB7XG5cbiAgaWYgKHR5cGVvZiBmaWVsZCAhPT0gJ3N0cmluZycpIHtcbiAgICByZXR1cm4gbnVsbDtcbiAgfVxuXG4gIC8qXG4gICAgQ2FjaGUtQ29udHJvbCAgID0gMSNjYWNoZS1kaXJlY3RpdmVcbiAgICBjYWNoZS1kaXJlY3RpdmUgPSB0b2tlbiBbIFwiPVwiICggdG9rZW4gLyBxdW90ZWQtc3RyaW5nICkgXVxuICAgIHRva2VuICAgICAgICAgICA9IFteXFx4MDAtXFx4MjBcXChcXCk8PkBcXCw7XFw6XFxcXFwiXFwvXFxbXFxdXFw/XFw9XFx7XFx9XFx4N0ZdK1xuICAgIHF1b3RlZC1zdHJpbmcgICA9IFwiKD86W15cIlxcXFxdfFxcXFwuKSpcIlxuICAqL1xuXG4gIC8vICAgICAgICAgICAgICAgICAgICAgICAgICAgICAxOiBkaXJlY3RpdmUgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPSAgIDI6IHRva2VuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDM6IHF1b3RlZC1zdHJpbmdcbiAgdmFyIHJlZ2V4ID0gLyg/Ol58KD86XFxzKlxcLFxccyopKShbXlxceDAwLVxceDIwXFwoXFwpPD5AXFwsO1xcOlxcXFxcIlxcL1xcW1xcXVxcP1xcPVxce1xcfVxceDdGXSspKD86XFw9KD86KFteXFx4MDAtXFx4MjBcXChcXCk8PkBcXCw7XFw6XFxcXFwiXFwvXFxbXFxdXFw/XFw9XFx7XFx9XFx4N0ZdKyl8KD86XFxcIigoPzpbXlwiXFxcXF18XFxcXC4pKilcXFwiKSkpPy9nO1xuXG4gIHZhciBoZWFkZXIgPSB7fTtcbiAgdmFyIGVyciA9IGZpZWxkLnJlcGxhY2UocmVnZXgsIGZ1bmN0aW9uKCQwLCAkMSwgJDIsICQzKSB7XG4gICAgdmFyIHZhbHVlID0gJDIgfHwgJDM7XG4gICAgaGVhZGVyWyQxXSA9IHZhbHVlID8gdmFsdWUudG9Mb3dlckNhc2UoKSA6IHRydWU7XG4gICAgcmV0dXJuICcnO1xuICB9KTtcblxuICBpZiAoaGVhZGVyWydtYXgtYWdlJ10pIHtcbiAgICB0cnkge1xuICAgICAgdmFyIG1heEFnZSA9IHBhcnNlSW50KGhlYWRlclsnbWF4LWFnZSddLCAxMCk7XG4gICAgICBpZiAoaXNOYU4obWF4QWdlKSkge1xuICAgICAgICByZXR1cm4gbnVsbDtcbiAgICAgIH1cblxuICAgICAgaGVhZGVyWydtYXgtYWdlJ10gPSBtYXhBZ2U7XG4gICAgfVxuICAgIGNhdGNoIChlcnIpIHsgfVxuICB9XG5cbiAgcmV0dXJuIChlcnIgPyBudWxsIDogaGVhZGVyKTtcbn07XG4iXSwibmFtZXMiOltdLCJpZ25vcmVMaXN0IjpbMF0sInNvdXJjZVJvb3QiOiIifQ==\n//# sourceURL=webpack-internal:///(ssr)/./node_modules/.pnpm/parse-cache-control@1.0.1/node_modules/parse-cache-control/index.js\n");
+
+/***/ })
+
+};
+;

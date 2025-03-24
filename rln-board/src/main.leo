@@ -146,7 +146,7 @@ program rln_boardv01.aleo {
     }
 
     // Adds a new member to the board.
-    async transition register(public group_id: field, secret: field, token: Token, root: field, old_root: field) -> (Token, Future) {
+    async transition register(public group_id: field, secret: field, token: Token, root: field) -> (Token, Future) {
         let identity_commitment: field = Poseidon2::hash_to_field(secret);
 
         assert(token.owner == self.caller);
@@ -160,11 +160,11 @@ program rln_boardv01.aleo {
 
         let deposit_key: field = BHP256::hash_to_field([group_id, secret]);
 
-        let register_future: Future = finalize_register(group_id, token.owner, deposit_key, identity_commitment, RATE_PER_GROUP as u64, root, old_root);
+        let register_future: Future = finalize_register(group_id, token.owner, deposit_key, identity_commitment, RATE_PER_GROUP as u64, root);
         return (new_token, register_future);
     }
 
-    async function finalize_register(group_id: field, owner: address, deposit_key: field, identity_commitment: field, amount: u64, root: field, old_root: field) {
+    async function finalize_register(group_id: field, owner: address, deposit_key: field, identity_commitment: field, amount: u64, root: field) {
         let board: Group = rln_group.get(group_id);
         let mem_index: u32 = board.size;
         let member: GroupMember = GroupMember {
@@ -190,7 +190,6 @@ program rln_boardv01.aleo {
         group_member_index.set(group_member_key, mem_index);
         deposits.set(deposit_key, amount);
 
-        assert(board.root == old_root);
         let rln_board: Group = Group {
             id: group_id,
             root,
@@ -204,7 +203,7 @@ program rln_boardv01.aleo {
     // Allows a member to post a message.
     // It computes RLN outputs, verifies the Merkle proof for the identity commitment,
     // increments the member's message counter, and updates both the message and RLN output mappings.
-    async transition post_message(group_id: field, grp_nullifier: field, member_address: address, secret_key: field, index: u32, message: field, message_id: u32, msg_counter_record: UserMessageCounter, merkle_path_elements: [field; 15], merkle_path_indices: [field; 15], root: field, old_root: field) -> (UserMessageCounter, bool, Future) {
+    async transition post_message(group_id: field, grp_nullifier: field, member_address: address, secret_key: field, index: u32, message: field, msg_counter_record: UserMessageCounter, merkle_path_elements: [field; 15], merkle_path_indices: [field; 15], root: field) -> (UserMessageCounter, bool, Future) {
         let identity_commitment: field = Poseidon2::hash_to_field(secret_key);
 
         let msg_hash: field = Poseidon2::hash_to_field(message);
@@ -216,7 +215,7 @@ program rln_boardv01.aleo {
         assert(verify_merkle_proof(root, identity_commitment, merkle_path_elements, merkle_path_indices));
 
         let exceed_flag: bool = false;
-        if message_id > 1u32 {
+        if msg_counter_record.counter > 1u32 {
             exceed_flag = true;
         }
 
@@ -232,11 +231,11 @@ program rln_boardv01.aleo {
             root,
         };
 
-        let post_message_future: Future = finalize_post_message(group_id, identity_commitment, index, new_counter_record.owner, msg_hash, msg_counter_record.counter, old_root, rln_output, exceed_flag);
+        let post_message_future: Future = finalize_post_message(group_id, identity_commitment, index, new_counter_record.owner, msg_hash, msg_counter_record.counter, rln_output, exceed_flag);
         return (new_counter_record, exceed_flag, post_message_future);
     }
 
-    async function finalize_post_message(group_id: field, identity_commitment: field, index: u32, member: address, msg_hash: field, msg_counter: u32, old_root: field, rln_output: RLNOutput, exceed_flag: bool) {
+    async function finalize_post_message(group_id: field, identity_commitment: field, index: u32, member: address, msg_hash: field, msg_counter: u32, rln_output: RLNOutput, exceed_flag: bool) {
         let board: Group = rln_group.get(group_id);
 
         let group_member_key: field = Poseidon2::hash_to_field([group_id, identity_commitment]);
@@ -279,7 +278,6 @@ program rln_boardv01.aleo {
 
         rln_group_member.set(group_member_key, updated_group_member);
         
-        assert(board.root == old_root);
         let rln_board: Group = Group {
             id: group_id,
             root: rln_output.root,
@@ -290,7 +288,7 @@ program rln_boardv01.aleo {
     }
 
     // Allows a member to withdraw their stake.
-    async transition withdraw_stake(public group_id: field, member: address, secret: field, index: u32, token: Token, msg_counter_record: UserMessageCounter, merkle_path_elements: [field; 15], merkle_path_indices: [field; 15], root: field, old_root: field) -> (Token, Future) {
+    async transition withdraw_stake(public group_id: field, member: address, secret: field, index: u32, token: Token, msg_counter_record: UserMessageCounter, merkle_path_elements: [field; 15], merkle_path_indices: [field; 15], root: field) -> (Token, Future) {
         assert(token.owner == member);
 
         let identity_commitment: field = Poseidon2::hash_to_field(secret);
@@ -303,12 +301,12 @@ program rln_boardv01.aleo {
         };
 
         let deposit_key: field = BHP256::hash_to_field([group_id, secret]);
-        let withdraw_stake_future: Future = finalize_withdraw_stake(group_id, index, msg_counter_record.counter, root, old_root, deposit_key, identity_commitment);
+        let withdraw_stake_future: Future = finalize_withdraw_stake(group_id, index, msg_counter_record.counter, root, deposit_key, identity_commitment);
         
         return (new_token, withdraw_stake_future);
     }
 
-    async function finalize_withdraw_stake(group_id: field, index: u32, msg_counter: u32, root: field, old_root: field, deposit_key: field, identity_commitment: field) {
+    async function finalize_withdraw_stake(group_id: field, index: u32, msg_counter: u32, root: field,  deposit_key: field, identity_commitment: field) {
         let board: Group = rln_group.get(group_id);
 
         let group_member_key: field = Poseidon2::hash_to_field([group_id, identity_commitment]);
@@ -324,7 +322,6 @@ program rln_boardv01.aleo {
         let mem_msg_key: field = Poseidon4::hash_to_field([group_id, index as field, msg_counter as field]);
         let member_recent_message: Message = messages.get(mem_msg_key);
 
-        assert(board.root == old_root);
         let rln_board: Group = Group {
             id: group_id,
             root,
@@ -342,7 +339,7 @@ program rln_boardv01.aleo {
     }
 
     // Allows a slasher to penalize a member who exceeded the message limit.
-    async transition slash(public group_id: field, slasher: address, slasher_secret: field, slashee_identity_commitment: field, x_share0: field, x_share1: field, y_share0: field, y_share1: field, token: Token, merkle_path_elements: [field; 15], merkle_path_indices: [field; 15], root: field, old_root: field) -> (Token, Future) {
+    async transition slash(public group_id: field, slasher: address, slasher_secret: field, slashee_identity_commitment: field, x_share0: field, x_share1: field, y_share0: field, y_share1: field, token: Token, merkle_path_elements: [field; 15], merkle_path_indices: [field; 15], root: field) -> (Token, Future) {
         let secret: field = derive_secret(x_share0, x_share1, y_share0, y_share1);
         let identity_commitment: field = Poseidon2::hash_to_field(secret);
 
@@ -359,12 +356,12 @@ program rln_boardv01.aleo {
         let slasher_identity_commitment: field = Poseidon2::hash_to_field(slasher_secret);
         let slasher_deposit_key: field = Poseidon2::hash_to_field([group_id, slasher_secret]);
         let slashee_deposit_key: field = Poseidon2::hash_to_field([group_id, secret]);
-        let slash_future: Future = finalize_slash(group_id, slasher, slasher_identity_commitment, slasher_deposit_key, slashee_deposit_key, identity_commitment, root, old_root);
+        let slash_future: Future = finalize_slash(group_id, slasher, slasher_identity_commitment, slasher_deposit_key, slashee_deposit_key, identity_commitment, root);
         
         return (new_token, slash_future);
     }
 
-    async function finalize_slash(group_id: field, slasher: address, slasher_id_commitment: field, slasher_deposit_key: field, slashee_deposit_key: field, slashee_identity_commitment: field, root: field, old_root: field) {
+    async function finalize_slash(group_id: field, slasher: address, slasher_id_commitment: field, slasher_deposit_key: field, slashee_deposit_key: field, slashee_identity_commitment: field, root: field) {
         let board: Group = rln_group.get(group_id);
 
         let group_member_key_slasher: field = Poseidon2::hash_to_field([group_id, slasher_id_commitment]);
@@ -381,7 +378,6 @@ program rln_boardv01.aleo {
 
         let slashee: GroupMember = rln_group_member.get(group_member_key_slashee);
 
-        assert(board.root == old_root);
         let rln_board: Group = Group {
             id: group_id,
             root,

@@ -1,0 +1,20 @@
+{
+    "name": "Aleo Codespace",
+    "dockerFile": "Dockerfile",
+    "postCreateCommand": "rustup update && cargo --version && cargo install --locked --path .",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "rust-lang.rust-analyzer"
+            ],
+            "settings": {
+                "terminal.integrated.shell.linux": "/bin/bash"
+              }
+        }
+    },
+    "mounts": [
+      "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached"
+    ],
+    "remoteUser": "vscode"
+  }
+  

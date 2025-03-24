@@ -1,0 +1,13 @@
+FROM mcr.microsoft.com/vscode/devcontainers/rust:0-1-bullseye
+
+RUN apt-get update && apt-get install -y \
+    cmake \
+    git \
+    build-essential \
+    pkg-config \
+    libssl-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+ENV RUST_LOG=info
+
+WORKDIR /workspace

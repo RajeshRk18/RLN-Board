@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "module": "esnext",
+    "moduleResolution": "node",
+    "target": "esnext",
+    "esModuleInterop": true,
+    "outDir": "./dist",
+    "skipLibCheck": true,
+    "composite": true,
+    "jsx": "react-jsx",
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx"]
+}
